@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>tesform</title>
+</head>
+<body>
+
+    <form method="post" action="/saveform">
+        <fieldset>
+            <legend>测试普通表单</legend>
+            <div>
+                <label>username</label>
+                <input type="text" name="username" />
+            </div>
+            <div>
+                <label>email</label>
+                <input type="text" name="email" />
+            </div>
+            <div>
+                <label>salary</label>
+                <input type="text" name="salary" />
+            </div>
+            <div>
+                <label>singleselect</label>
+                <select name="singleselect">
+                    <option value="1">选项1</option>
+                    <option value="2">选项2</option>
+                    <option value="3">选项3</option>
+                </select>
+            </div>
+            <div>
+                <label>mutiselect</label>
+                <select name="mutiselect" multiple="true" size="3" style="width:100px;">
+                    <option value="1">1</option>
+                     <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit">提交</button>
+
+            </div>
+        </fieldset>
+    </form>
+
+    <form method="post" action="/savefile" enctype="multipart/form-data">
+        <fieldset>
+            <legend>测试上传文件</legend>
+            <div>
+                <label>id</label>
+                <input type="text" name="id" value="1" />
+            </div>
+            <div>
+                <label>dept_name</label>
+                <input type="text" name="dept_name" value="tangw"/>
+            </div>
+            <div>
+                <label>created_at</label>
+                <input type="text" name="created_at" value="1999-09-25 12:05:20" />
+            </div>
+             <div>
+                <label>file</label>
+                <input type="file" name="myfile" />
+            </div>
+            <div>
+                <button type="submit">提交</button>
+
+            </div>
+        </fieldset>
+    </form>
+
+</body>
+</html>
