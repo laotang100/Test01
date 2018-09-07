@@ -58,8 +58,10 @@ class Department(mydb.Model):
     __json_excludes__ = []
     __validator__ = Validator({
         'id': [Rule('required', groups=["modify"])],
-        'dept_name': [Rule('required', groups=['add', 'modify']),
-                      Rule('maxlength', (50,), groups=['add', 'modify'])]
+        'dept_name': [
+            Rule('required', groups=['add', 'modify']),
+            Rule('maxlength', (50,), groups=['add', 'modify'])
+        ]
     })
     id = mydb.Column("id", mydb.BigInteger, primary_key=True)
     dept_name = mydb.Column("dept_name", mydb.String(50), nullable=False)
