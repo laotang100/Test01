@@ -1,66 +1,44 @@
 # coding: utf-8
-from datetime import date, datetime
-from flask_sqlalchemy import BaseQuery
-from decimal import Decimal
+from flask_sqlalchemy import SQLAlchemy
+from validator import Validator, Rule
 
-from sqlalchemy import BIGINT, Column, DECIMAL, Date, DateTime, ForeignKey, String
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-metadata = Base.metadata
+mydb = SQLAlchemy()
 
 
-class JsonModel:
-
-    @staticmethod
-    def format_obj(val, pattern=None):
-        if val is None:
-            return None
-        obj = val
-        if isinstance(val, datetime):
-            obj = val.strftime(pattern if (pattern is not None) else "%Y-%m-%d %H:%M:%S")
-        elif isinstance(val, date):
-            obj = val.strftime(pattern if (pattern is not None) else "%Y-%m-%d")
-        elif isinstance(val, BaseQuery):
-            obj = [i.jsondata() for i in val]
-        elif isinstance(val, JsonModel):
-            obj = val.jsondata()
-        elif isinstance(val, Decimal):
-            obj = str(val)
-        # else:
-        #     obj = str(obj)
-        return obj
-
-    def __init__(self):
-        self.ignores = []
-        self.formats = {}
-
-    def jsondata(self):
-        d = dict()
-        for c in self.__table__.columns:
-            v = getattr(self, c.name)
-            d[c.name] = JsonModel.format_obj(v)
-        return d
-
-
-class Department(Base, JsonModel):
-    __tablename__ = 'department'
-
-    id = Column(BIGINT(20), primary_key=True)
-    dept_name = Column(String(50))
-    created_at = Column(DateTime)
-
-
-class Userinfo(Base, JsonModel):
+class UserInfo(mydb.Model):
     __tablename__ = 'userinfo'
+    __json_excludes__ = ['password']
+    __validator__ = Validator({
+        'id': [Rule('required', groups=['modify'])],
+        'username': [Rule('required', groups=['add']),
+                     Rule('maxlength', (50,), groups=['add'])],
+        'password': [Rule('required', groups=['add']), Rule('maxlength', (50,), groups=['add'])],
+        'dept_id': [Rule('required', groups=['add', 'modify'])],
+        'gender': [Rule('required', groups=['add', 'modify'])],
+        'birth': [Rule('required', groups=['add', 'modify']), Rule('date', groups=['add', 'modify'])],
+        'salary': [Rule('required', groups=['add', 'modify']), Rule('number', groups=['add', 'modify']),
+                   Rule('min', groups=['add', 'modify'])]
+    })
+    id = mydb.Column(mydb.BigInteger, primary_key=True)
+    username = mydb.Column(mydb.String(50), nullable=False)
+    password = mydb.Column(mydb.String(50), nullable=False)
+    dept_id = mydb.Column(mydb.BigInteger, mydb.ForeignKey('department.id'), nullable=True)
+    gender = mydb.Column(mydb.String(50), nullable=False)
+    birth = mydb.Column(mydb.DATE, nullable=False)
+    salary = mydb.Column(mydb.DECIMAL, nullable=True)
+    # dept = relationship('Department')
 
-    id = Column(BIGINT(20), primary_key=True)
-    username = Column(String(50))
-    password = Column(String(50))
-    dept_id = Column(ForeignKey('department.id'), index=True)
-    gender = Column(String(50))
-    birth = Column(Date)
-    salary = Column(DECIMAL(10, 2))
 
-    dept = relationship('Department')
+class Department(mydb.Model):
+    __tablename__ = 'department'
+    __json_excludes__ = []
+    __validator__ = Validator({
+        'id': [Rule('required', groups=["modify"])],
+        'dept_name': [
+            Rule('required', groups=['add', 'modify']),
+            Rule('maxlength', (50,), groups=['add', 'modify'])
+        ]
+    })
+    id = mydb.Column("id", mydb.BigInteger, primary_key=True)
+    dept_name = mydb.Column("dept_name", mydb.String(50), nullable=False)
+    created_at = mydb.Column(mydb.DateTime, nullable=False)
